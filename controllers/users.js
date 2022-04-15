@@ -9,7 +9,13 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      if (user === null) {
+        res.status(400).send({ message: 'Ошибка: Данные переданы неккоректно.' });
+      } else {
+        res.send({ data: user });
+      }
+    })
     .catch((err) => {
       const answer = handleError(err.name, 'forUsersRequests');
       res.status(answer.status).send({ message: answer.message });

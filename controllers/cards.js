@@ -19,7 +19,13 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then(() => res.send({ message: 'Место успешно удалено.' }))
+    .then((card) => {
+      if (card === null) {
+        res.status(400).send({ message: 'Ошибка: Данные переданы неккоректно.' });
+      } else {
+        res.send({ message: 'Место успешно удалено.' });
+      }
+    })
     .catch((err) => {
       const answer = handleError(err.name, 'forCardsRequests');
       res.status(answer.status).send({ message: answer.message });
@@ -28,7 +34,13 @@ module.exports.deleteCardById = (req, res) => {
 
 module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } })
-    .then(() => res.send({ message: 'Лайк успешно добавлен.' }))
+    .then((card) => {
+      if (card === null) {
+        res.status(400).send({ message: 'Ошибка: Данные переданы неккоректно.' });
+      } else {
+        res.send({ message: 'Лайк успешно добавлен.' });
+      }
+    })
     .catch((err) => {
       const answer = handleError(err.name, 'forCardsRequests');
       res.status(answer.status).send({ message: answer.message });
@@ -37,7 +49,13 @@ module.exports.likeCard = (req, res) => {
 
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } })
-    .then(() => res.send({ message: 'Лайк успешно убран.' }))
+    .then((card) => {
+      if (card === null) {
+        res.status(400).send({ message: 'Ошибка: Данные переданы неккоректно.' });
+      } else {
+        res.send({ message: 'Лайк успешно убран.' });
+      }
+    })
     .catch((err) => {
       const answer = handleError(err.name, 'forCardsRequests');
       res.status(answer.status).send({ message: answer.message });
