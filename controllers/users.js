@@ -11,7 +11,7 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user === null) {
-        res.status(400).send({ message: 'Ошибка: Данные переданы неккоректно.' });
+        res.status(404).send({ message: 'Ошибка: Пользователь с указанным идентификатором не найден' });
       } else {
         res.send({ data: user });
       }
