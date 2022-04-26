@@ -22,13 +22,13 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.post('/signin', celebrate({
-  [Segments.BODY]: Joi.object().keys({
+  body: Joi.object().keys({
     email: Joi.string().required(),
     password: Joi.string().required(),
   }),
 }), login);
 app.post('/signup', celebrate({
-  [Segments.BODY]: Joi.object().keys({
+  body: Joi.object().keys({
     name: Joi.string().default('Жак-Ив Кусто').min(2).max(30),
     about: Joi.string().default('Исследователь').min(2).max(30),
     avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
