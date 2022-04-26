@@ -23,7 +23,7 @@ app.use('/cards', require('./routes/cards'));
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required(),
+    email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
 }), login);
@@ -31,8 +31,8 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).default('Жак-Ив Кусто'),
     about: Joi.string().min(2).max(30).default('Исследователь'),
-    avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
-    email: Joi.string().required(),
+    avatar: Joi.string().uri().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
+    email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
 }), createUser);
@@ -40,8 +40,6 @@ app.post('/signup', celebrate({
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Ошибка: данный ресурс на найден.' });
 });
-
-app.use(errors());
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
@@ -56,5 +54,7 @@ app.use((err, req, res, next) => {
     res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка: что-то пошло не так.' : message });
   }
 });
+
+app.use(errors());
 
 app.listen(PORT);
