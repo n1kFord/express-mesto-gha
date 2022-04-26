@@ -64,7 +64,7 @@ module.exports.changeUserAvatar = (req, res, next) => {
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id).select('+password')
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Ошибка: Пользователь с указанным идентификатором не найден');

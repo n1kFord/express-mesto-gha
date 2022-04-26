@@ -18,16 +18,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.use('/users', celebrate({
-  [Segments.HEADERS]: Joi.object({
-    authorization: Joi.string().required(),
-  }).unknown(true),
-}), require('./routes/users'));
-app.use('/cards', celebrate({
-  [Segments.HEADERS]: Joi.object({
-    authorization: Joi.string().required(),
-  }).unknown(true),
-}), require('./routes/cards'));
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
 
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
@@ -51,11 +43,12 @@ app.use('*', (req, res) => {
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  console.log(err);
   const { statusCode = 500, message } = err;
   if (err.code === 11000) {
     res.status(409).send({ message: 'Ошибка: пользователь с таким e-mail уже существует.' });
   } else if (err.name === 'ValidationError' || err.name === 'CastError' || err.name === 'TypeError' || err.message === 'Validation failed') {
-    res.status(400).send({ message: 'Ошибка: данные переданы неккоректно', tip: err.message });
+    res.status(400).send({ message: 'Ошибка: данные переданы неккоректно' });
   } else {
     res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка: что-то пошло не так.' : message });
   }
