@@ -1,61 +1,91 @@
+const validator = require('validator');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const handleError = require('../utils/utils');
+const NotFoundError = require('../errors/not-found-error');
+const BadRequestError = require('../errors/bad-request-error');
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Ошибка: Что-то пошло не так.' }));
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
-      if (user === null) {
-        res.status(404).send({ message: 'Ошибка: Пользователь с указанным идентификатором не найден' });
+      if (!user) {
+        throw new NotFoundError('Ошибка: Пользователь с указанным идентификатором не найден');
       } else {
         res.send({ data: user });
       }
     })
-    .catch((err) => {
-      const answer = handleError(err.name, 'forUsersRequests');
-      res.status(answer.status).send({ message: answer.message });
-    });
+    .catch(next);
 };
 
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      const answer = handleError(err.name, 'forUsersRequests');
-      res.status(answer.status).send({ message: answer.message });
-    });
-};
-
-module.exports.changeUserInfo = (req, res) => {
-  const { name, about } = req.body;
-  if (name === undefined || about === undefined) {
-    res.status(400).send({ message: 'Ошибка: Данные переданы неккоректно.' });
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  if (!validator.isEmail(email)) {
+    next(new BadRequestError('Ошибка: неккоректный e-mail.'));
   } else {
-    User.findByIdAndUpdate(req.user._id, { name: `${name}`, about: `${about}` }, { new: true, runValidators: true, upsert: false })
-      .then((user) => res.send({ data: user }))
-      .catch((err) => {
-        const answer = handleError(err.name, 'forUsersRequests');
-        res.status(answer.status).send({ message: answer.message });
-      });
+    bcrypt.hash(password, 10)
+      .then((hash) => User.create({
+        name, about, avatar, email, password: hash,
+      }))
+      .then((user) => {
+        res.send({ email: user.email, password: user.password });
+      })
+      .catch(next);
   }
 };
 
-module.exports.changeUserAvatar = (req, res) => {
+module.exports.changeUserInfo = (req, res, next) => {
+  const { name, about } = req.body;
+  if (!name || !about) {
+    next(new BadRequestError('Ошибка: данные переданы неккоректно.'));
+  } else {
+    User.findByIdAndUpdate(req.user._id, { name: `${name}`, about: `${about}` }, { new: true, runValidators: true, upsert: false })
+      .then((user) => res.send({ data: user }))
+      .catch(next);
+  }
+};
+
+module.exports.changeUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  if (avatar === undefined) {
-    res.status(400).send({ message: 'Ошибка: Данные переданы неккоректно.' });
+  if (!avatar) {
+    next(new BadRequestError('Ошибка: данные переданы неккоректно.'));
   } else {
     User.findByIdAndUpdate(req.user._id, { avatar: `${avatar}` }, { new: true, runValidators: true, upsert: false })
       .then((user) => res.send({ data: user }))
-      .catch((err) => {
-        const answer = handleError(err.name, 'forUsersRequests');
-        res.status(answer.status).send({ message: answer.message });
-      });
+      .catch(next);
+  }
+};
+
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id).select('+password')
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Ошибка: Пользователь с указанным идентификатором не найден');
+      } else {
+        res.send({ data: user });
+      }
+    })
+    .catch(next);
+};
+
+// eslint-disable-next-line consistent-return
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  if (!validator.isEmail(email)) {
+    next(new BadRequestError('Ошибка: неккоректный e-mail.'));
+  } else {
+    return User.findUserByCredentials(email, password)
+      .then((user) => {
+        const token = jwt.sign({ _id: user._id }, 'secret-key', { expiresIn: '7d' });
+        res.send({ token });
+      })
+      .catch(next);
   }
 };

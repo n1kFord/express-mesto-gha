@@ -1,63 +1,58 @@
 const Card = require('../models/card');
-const handleError = require('../utils/utils');
+const NotFoundError = require('../errors/not-found-error');
+const ForbiddenError = require('../errors/forbidden-error');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Ошибка: Что-то пошло не так.' }));
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
-    .catch((err) => {
-      const answer = handleError(err.name, 'forCardsRequests');
-      res.status(answer.status).send({ message: answer.message });
-    });
+    .catch(next);
 };
 
-module.exports.deleteCardById = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      if (card === null) {
-        res.status(404).send({ message: 'Ошибка: Место с указанным идентификатором не найдено' });
+module.exports.deleteCardById = (req, res, next) => {
+  Card.findById(req.params.cardId)
+    .then((cardInfo) => {
+      if (cardInfo === null) {
+        throw new NotFoundError('Ошибка: Место с указанным идентификатором не найдено');
+      } else if (cardInfo.owner.toString() === req.user._id) {
+        Card.findByIdAndRemove(req.params.cardId)
+          .then(() => {
+            res.send({ message: 'Место успешно удалено.' });
+          })
+          .catch(next);
       } else {
-        res.send({ message: 'Место успешно удалено.' });
+        throw new ForbiddenError('Ошибка: вы не можете удалить чужое место.');
       }
     })
-    .catch((err) => {
-      const answer = handleError(err.name, 'forCardsRequests');
-      res.status(answer.status).send({ message: answer.message });
-    });
+    .catch(next);
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } })
     .then((card) => {
       if (card === null) {
-        res.status(404).send({ message: 'Ошибка: Место с указанным идентификатором не найдено' });
+        throw new NotFoundError('Ошибка: Место с указанным идентификатором не найдено');
       } else {
         res.send({ message: 'Лайк успешно добавлен.' });
       }
     })
-    .catch((err) => {
-      const answer = handleError(err.name, 'forCardsRequests');
-      res.status(answer.status).send({ message: answer.message });
-    });
+    .catch(next);
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } })
     .then((card) => {
       if (card === null) {
-        res.status(404).send({ message: 'Ошибка: Место с указанным идентификатором не найдено' });
+        throw new NotFoundError('Ошибка: Место с указанным идентификатором не найдено');
       } else {
         res.send({ message: 'Лайк успешно убран.' });
       }
     })
-    .catch((err) => {
-      const answer = handleError(err.name, 'forCardsRequests');
-      res.status(answer.status).send({ message: answer.message });
-    });
+    .catch(next);
 };
