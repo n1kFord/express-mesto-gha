@@ -43,13 +43,12 @@ app.use('*', (req, res) => {
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.log(err);
   const { statusCode = 500, message } = err;
   if (err.code === 11000) {
     res.status(409).send({ message: 'Ошибка: пользователь с таким e-mail уже существует.' });
   } else if (err.name === 'ValidationError' || err.name === 'CastError' || err.name === 'TypeError' || err.message === 'Validation failed') {
     res.status(400).send({ message: 'Ошибка: данные переданы неккоректно' });
-  } else if(err.message === 'Ошибка: Неправильные почта или пароль.'){
+  } else if (err.message === 'Ошибка: Неправильные почта или пароль.') {
     res.status(401).send({ message: err.message });
   } else {
     res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка: что-то пошло не так.' : message });
