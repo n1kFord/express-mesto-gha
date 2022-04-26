@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const {
-  celebrate, Joi, Segments,
+  celebrate, Joi,
 } = require('celebrate');
 const auth = require('../middlewares/auth');
 
@@ -10,7 +10,7 @@ const {
 
 router.get('/', auth, getCards);
 router.post('/', celebrate({
-  [Segments.BODY]: Joi.object().keys({
+  body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required(),
   }),
