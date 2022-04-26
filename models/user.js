@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     validate: {
       validator(v) {
         // eslint-disable-next-line no-useless-escape
-        return /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&amp;\/=]*)/.test(v);
+        return /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&amp;\/=]*)/gm.test(v);
       },
       message: '{VALUE} не является корректной ссылкой.',
     },
