@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const {
-  celebrate, Joi, errors, Segments,
+  celebrate, Joi, errors,
 } = require('celebrate');
 
 const { createUser, login } = require('./controllers/users');
