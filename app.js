@@ -45,6 +45,7 @@ app.use(errors());
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
+  console.log(err);
   const { statusCode = 500, message } = err;
   if (err.code === 11000) {
     res.status(409).send({ message: 'Ошибка: пользователь с таким e-mail уже существует.' });
