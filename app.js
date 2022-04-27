@@ -36,7 +36,7 @@ app.post('/signup', celebrate({
     avatar: Joi.string()
     // eslint-disable-next-line no-useless-escape
       .regex(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&amp;\/=]*)/)
-      .default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png').required(),
+      .default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
@@ -50,7 +50,6 @@ app.use(errors());
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.log(err);
   const { statusCode = 500, message } = err;
   if (err.code === 11000) {
     res.status(409).send({ message: 'Ошибка: пользователь с таким e-mail уже существует.' });
