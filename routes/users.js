@@ -23,7 +23,8 @@ router.patch('/me', celebrate({
 }), auth, changeUserInfo);
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().uri().required(),
+    // eslint-disable-next-line no-useless-escape
+    avatar: Joi.string().regex(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&amp;\/=]*)/).required(),
   }),
 }), auth, changeUserAvatar);
 

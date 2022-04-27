@@ -5,6 +5,8 @@ const {
   celebrate, Joi, errors,
 } = require('celebrate');
 
+const NotFoundError = require('./errors/not-found-error');
+
 const { createUser, login } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
@@ -31,14 +33,17 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).default('Жак-Ив Кусто'),
     about: Joi.string().min(2).max(30).default('Исследователь'),
-    avatar: Joi.string().uri().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
+    avatar: Joi.string()
+    // eslint-disable-next-line no-useless-escape
+      .regex(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&amp;\/=]*)/)
+      .default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png').required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
 }), createUser);
 
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Ошибка: данный ресурс на найден.' });
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Ошибка: данный ресурс не найден.'));
 });
 
 app.use(errors());
