@@ -26,7 +26,7 @@ app.use(requestLogger);
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', 'localhost:3000');
   res.header('Access-Control-Allow-Headers', 'Origin, Authorization, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+  res.header('Access-Control-Allow-Methods', 'GET,OPTIONS,HEAD,PUT,PATCH,POST,DELETE');
   next();
 });
 
