@@ -39,7 +39,7 @@ module.exports.likeCard = (req, res, next) => {
       if (card === null) {
         throw new NotFoundError('Ошибка: Место с указанным идентификатором не найдено');
       } else {
-        res.send({ message: 'Лайк успешно добавлен.' });
+        res.send({ message: 'Лайк успешно добавлен.', data: card });
       }
     })
     .catch(next);
@@ -51,7 +51,7 @@ module.exports.dislikeCard = (req, res, next) => {
       if (card === null) {
         throw new NotFoundError('Ошибка: Место с указанным идентификатором не найдено');
       } else {
-        res.send({ message: 'Лайк успешно убран.' });
+        res.send({ message: 'Лайк успешно убран.', data: card });
       }
     })
     .catch(next);
