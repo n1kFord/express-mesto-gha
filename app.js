@@ -10,6 +10,7 @@ const NotFoundError = require('./errors/not-found-error');
 const { createUser, login } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -23,7 +24,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(requestLogger);
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000/');
+  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.header('Access-Control-Allow-Headers', 'Origin, Authorization, X-Requested-With, Content-Type, Accept');
   res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
   next();
