@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const {
   celebrate, Joi, errors,
 } = require('celebrate');
-
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/not-found-error');
 
 const { createUser, login } = require('./controllers/users');
@@ -20,8 +20,16 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
+app.use(requestLogger);
+
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('server crashing');
+  }, 0);
+});
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -45,6 +53,8 @@ app.post('/signup', celebrate({
 app.use('*', (req, res, next) => {
   next(new NotFoundError('Ошибка: данный ресурс не найден.'));
 });
+
+app.use(errorLogger);
 
 app.use(errors());
 
