@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "npx eslint .",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "deploy": "scp /* n1kford@51.250.51.168:express-mesto-gha"
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,7 @@
     "nodemon": "^2.0.15"
   },
   "dependencies": {
-    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.0",
     "celebrate": "^15.0.1",
     "dotenv": "^16.0.1",
